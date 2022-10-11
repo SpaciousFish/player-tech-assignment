@@ -1,0 +1,5 @@
+go mod init REST_API_PLAYER_TECH
+go mod tidy
+go get -u github.com/gorilla/mux
+go build
+.\REST_API_PLAYER_TECH.exe

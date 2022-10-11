@@ -1,0 +1,3 @@
+module PLAYER_TECH_TOOL
+
+go 1.19

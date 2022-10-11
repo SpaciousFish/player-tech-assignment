@@ -1,0 +1,4 @@
+go mod init PLAYER_TECH_TOOL
+go mod tidy
+go build
+.\PLAYER_TECH_TOOL.exe
