@@ -10,10 +10,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// Useful variables when running tests
 var authToken string = "Bearer abcd1234"
 var host string = "http://localhost:5000"
 var clientId string = "abcd"
 
+/**
+	This function executes a request based on a keyword, a path, and a string body.
+	Returns the result and the body.
+*/
 func executeRequest(keyword string, path string, body string) (*http.Response, []byte) {
 	req, err := http.NewRequest(keyword, path, bytes.NewBuffer([]byte(body)))
 	if err != nil {
@@ -32,16 +37,27 @@ func executeRequest(keyword string, path string, body string) (*http.Response, [
 	return res, res_body
 }
 
+/**
+	Helper function to create a profile based on a profile id and profile body.
+	Returns the result and body of the request.
+*/
 func createProfile(id string, profile string) (*http.Response, []byte) {
 	res, body := executeRequest("POST", host+"/profiles/"+id, profile)
 	return res, body
 }
 
+/**
+	Helper function to delete a profile based on a profile id and profile body.
+	Returns the result and body of the request.
+*/
 func deleteProfile(id string) (*http.Response, []byte) {
 	res, body := executeRequest("DELETE", host+"/profiles/"+id, "")
 	return res, body
 }
 
+/**
+	Test to check whether the create profile functionality is working.
+*/
 func TestCreateProfile(t *testing.T) {
 	id := "1234"
 	profile := `{"profile": {"applications": [{"applicationId": "test", "version": "1.0"}]}}`
@@ -54,6 +70,9 @@ func TestCreateProfile(t *testing.T) {
 	deleteProfile(id)
 }
 
+/**
+	Test to check whether the get profile functionality is working.
+*/
 func TestGetProfile(t *testing.T) {
 	id := "1234"
 	profile := `{"profile": {"applications": [{"applicationId": "test", "version": "1.0"}]}}`
@@ -67,6 +86,9 @@ func TestGetProfile(t *testing.T) {
 	deleteProfile(id)
 }
 
+/**
+	Test to check whether the get all profiles functionality is working.
+*/
 func TestGetAllProfiles(t *testing.T) {
 	id := "1234"
 	profile := `{"profile": {"applications": [{"applicationId": "test", "version": "1.0"}]}}`
@@ -80,6 +102,9 @@ func TestGetAllProfiles(t *testing.T) {
 	deleteProfile(id)
 }
 
+/**
+	Test to check whether the delete profile functionality is working.
+*/
 func TestDeleteProfile(t *testing.T) {
 	id := "1234"
 	profile := `{"profile": {"applications": [{"applicationId": "test", "version": "1.0"}]}}`
@@ -92,6 +117,9 @@ func TestDeleteProfile(t *testing.T) {
 	assert.Equal(t, expected, string(body))
 }
 
+/**
+	Test to check whether the update profile functionality is working.
+*/
 func TestUpdateProfile(t *testing.T) {
 	id := "1234"
 	profile := `{"profile": {"applications": [{"applicationId": "test", "version": "1.0"}]}}`

@@ -10,9 +10,12 @@ import (
 	"os"
 )
 
-var authToken string = "Bearer abcd1234"
-var clientId string = "a1b2c3d4"
+var authToken string = "Bearer abcd1234" // Should be the same as the api auth token
+var clientId string = "a1b2c3d4"		 // Should be the same as is passed to the api
 
+/**
+	This function reads in a csv file from a specific path and returns the file reader.
+*/
 func readFile(path string) *csv.Reader {
 	// Open the file
 	csvfile, err := os.Open(path)
@@ -26,8 +29,13 @@ func readFile(path string) *csv.Reader {
 	return r
 }
 
+/**
+	This function gets the result from the API when a PUT request is sent with a specific mac address,
+	body, authentication token and client id. The return value is the body and the status of the result.
+	If an error occurs, the body will be empty and the status will be Error.
+*/
 func getResFromApi(mac_addr string, bodyIn string, auth string, client string) (result string, status string){
-	// Call the API to update the player
+	// Create the request
 	url := "http://localhost:5000/profiles/" + mac_addr
 	req, err := http.NewRequest("PUT", url, bytes.NewBuffer([]byte(bodyIn)))
 	if err != nil {
@@ -35,19 +43,27 @@ func getResFromApi(mac_addr string, bodyIn string, auth string, client string) (
 	}
 	req.Header.Add("Authorization", auth)
 	req.Header.Add("x-client-id", client)
+
+	// Call the API to update the player
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return "", "Error"
 	}
 	defer res.Body.Close()
+
+	// Read the body contents
 	body, readErr := io.ReadAll(res.Body)
 	if readErr != nil {
 		return "", "Error"
 	}
+
 	return string(body), res.Status
 	
 }
 
+/**
+	This is the main function that happens on launch.
+*/
 func main() {
 	// Open the file
 	r := readFile("mac_addresses.csv")
@@ -66,7 +82,6 @@ func main() {
 		}
 
 		if record[0] != "mac_addresses" {
-			
 			// Print the record
 			fmt.Println("MAC address:", record[0])
 			res, status := getResFromApi(record[0], body, authToken, clientId)
@@ -79,6 +94,4 @@ func main() {
 			}
 		}
 	}
-
 }
-
