@@ -1,22 +1,5 @@
 package main
 
-/*You need to create a production-ready tool that will automate the update of a thousand music players by using an API. You don't have to create the API.
-
-Your tool will be used by different people using different operating systems. The most common ones will be Windows, MacOS and Linux.
-
-The input is a .csv file containing, at the very minimum, MAC addresses of players to update, always in the first column.
-
-### Example of a .csv file:
-```
-mac_addresses, id1, id2, id3
-a1:bb:cc:dd:ee:ff, 1, 2, 3
-a2:bb:cc:dd:ee:ff, 1, 2, 3
-a3:bb:cc:dd:ee:ff, 1, 2, 3
-a4:bb:cc:dd:ee:ff, 1, 2, 3
-```
-
-The `id1`, `id2` and `id3` fields aren't used in this assignment. The example is shown simply to demonstrate what the .csv file should look like.*/
-
 import (
 	"bytes"
 	"encoding/csv"
@@ -28,16 +11,46 @@ import (
 )
 
 var authToken string = "Bearer abcd1234"
+var clientId string = "a1b2c3d4"
 
-func main() {
+func readFile(path string) *csv.Reader {
 	// Open the file
-	csvfile, err := os.Open("mac_addresses.csv")
+	csvfile, err := os.Open(path)
 	if err != nil {
 		log.Fatalln("Couldn't open the csv file", err)
 	}
 
 	// Parse the file
 	r := csv.NewReader(csvfile)
+
+	return r
+}
+
+func getResFromApi(mac_addr string, bodyIn string, auth string, client string) (result string, status string){
+	// Call the API to update the player
+	url := "http://localhost:5000/profiles/" + mac_addr
+	req, err := http.NewRequest("PUT", url, bytes.NewBuffer([]byte(bodyIn)))
+	if err != nil {
+		return "", "Error"
+	}
+	req.Header.Add("Authorization", auth)
+	req.Header.Add("x-client-id", client)
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", "Error"
+	}
+	defer res.Body.Close()
+	body, readErr := io.ReadAll(res.Body)
+	if readErr != nil {
+		return "", "Error"
+	}
+	return string(body), res.Status
+	
+}
+
+func main() {
+	// Open the file
+	r := readFile("mac_addresses.csv")
 
 	var body string = `{"profile":{"applications":[{"applicationId":"music_app","version":"v1.4.10"},{"applicationId":"diagnostic_app","version":"v1.2.6"},{"applicationId":"settings_app","version":"v1.1.5"}]}}`
 
@@ -53,26 +66,19 @@ func main() {
 		}
 
 		if record[0] != "mac_addresses" {
+			
 			// Print the record
 			fmt.Println("MAC address:", record[0])
-
-			// Call the API to update the player
-			url := "http://localhost:5000/profiles/" + record[0]
-			req, err := http.NewRequest("PUT", url, bytes.NewBuffer([]byte(body)))
-			if err != nil {
-				fmt.Print(err.Error())
+			res, status := getResFromApi(record[0], body, authToken, clientId)
+			if status == "200 OK" {
+				fmt.Println("Success:", status)
+				fmt.Println("Response:", res)
+			} else {
+				fmt.Println("Error", status)
+				fmt.Println("Response:", res)
 			}
-			req.Header.Add("Authorization", authToken)
-			res, err := http.DefaultClient.Do(req)
-			if err != nil {
-				fmt.Print(err.Error())
-			}
-			defer res.Body.Close()
-			body, readErr := io.ReadAll(res.Body)
-			if readErr != nil {
-				fmt.Print(readErr.Error())
-			}
-			fmt.Println(string(body))
 		}
 	}
+
 }
+
