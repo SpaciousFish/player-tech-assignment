@@ -11,7 +11,7 @@ import (
 )
 
 var authToken string = "Bearer abcd1234" // Should be the same as the api auth token
-var clientId string = "a1b2c3d4"		 // Should be the same as is passed to the api
+var clientId string = "abcd"		 	 // Should be the same as is passed to the api
 
 /**
 	This function reads in a csv file from a specific path and returns the file reader.
