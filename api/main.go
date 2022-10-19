@@ -55,7 +55,7 @@ func createProfile(w http.ResponseWriter, r *http.Request) {
 	// check if the client already exists
 	params := mux.Vars(r)
 	for _, item := range clients {
-		if item.ClientId == r.Header.Get("x-client-id") || item.MacAddress == params["mac_address"] {
+		if item.ClientId == r.Header.Get("x-client-id") && item.MacAddress == params["mac_address"] {
 			w.WriteHeader(409)
 			w.Write([]byte("client already exists"))
 			return
